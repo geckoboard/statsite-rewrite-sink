@@ -22,24 +22,99 @@ type match struct {
 	tags map[string]string
 }
 
-type convertMetric struct {
-	match regexp.Regexp
-}
+type matchers []matcher
 
-var consulHTTPRequest = regexp.MustCompile(`^consul.http.(?P<method>[^\.]+)\.(?P<path>.+)$`)
+func (m matchers) ExtractTagsFromMetric(metricName string) *match {
+	result := &match{
+		name: metricName,
+		tags: map[string]string{},
+	}
 
-func extractTagsFromMetricName(namespace string) *match {
-	if m := consulHTTPRequest.FindStringSubmatch(namespace); m != nil {
-		return &match{
-			name: "consul.http",
-			tags: map[string]string{
-				"method": m[1],
-				"path":   m[2],
-			},
+	for _, matcher := range m {
+		// Merge all results. Some rules will only modify part of a metric name
+		if r := matcher.ApplyTo(result.name); r != nil {
+			result.name = r.name
+			for k, v := range r.tags {
+				result.tags[k] = v
+			}
 		}
 	}
 
-	return nil
+	if result.name == metricName && len(result.tags) == 0 {
+		return nil
+	}
+
+	return result
+}
+
+type matcher struct {
+	Pattern     *regexp.Regexp
+	ReplaceWith string
+}
+
+func (m matcher) ApplyTo(metricName string) *match {
+	submatch := m.Pattern.FindStringSubmatch(metricName)
+	if submatch == nil {
+		return nil
+	}
+
+	name := m.ReplaceWith
+	tags := map[string]string{}
+
+	// Convert all the things we matched into tags
+	for i, groupName := range m.Pattern.SubexpNames() {
+		// The 0th group contains the entire string the regexp matched (i.e.
+		// `metricName`), which we don't need
+		if i == 0 {
+			continue
+		}
+
+		tags[groupName] = submatch[i]
+		name = strings.Replace(name, "{"+groupName+"}", submatch[i], -1)
+	}
+
+	return &match{
+		name: name,
+		tags: tags,
+	}
+}
+
+// Heavily inspired by https://github.com/seatgeek/statsd-rewrite-proxy/blob/master/regex.go
+func CompileRulesIntoMatchers(rules []rule) matchers {
+	matches := make(matchers, 0, len(rules))
+
+	for _, r := range rules {
+		components := strings.Split(r.MatchMetric, ".")
+		regexParts := make([]string, 0, len(components))
+
+		for _, part := range components {
+			switch part[:1] {
+			case "{": // This is a rule for extracting a tag in `{tag_name}` format
+				name := part[1 : len(part)-1]
+				pattern := `[^\.]+`
+
+				// Allow custom patterns for the tag value.
+				// Useful if the tag value contains dots (e.g.
+				// consul's HTTP metrics contain a
+				// dot-separated path)
+				if custom, ok := r.CustomPatterns[name]; ok {
+					pattern = custom.String()
+				}
+
+				regexParts = append(regexParts, fmt.Sprintf(`(?P<%s>%s)`, name, pattern))
+			case "*": // Allow wildcards for ignoring parts of a metric we don't care about
+				regexParts = append(regexParts, ".+?")
+			default:
+				regexParts = append(regexParts, regexp.QuoteMeta(part))
+
+			}
+		}
+
+		pattern := strings.Join(regexParts, `\.+`)
+		matches = append(matches, matcher{Pattern: regexp.MustCompile(pattern), ReplaceWith: r.ReplaceWith})
+	}
+
+	return matches
 }
 
 func encodeTags(m match) string {
@@ -78,7 +153,7 @@ func timerFormatter(newMetricName string, originalMatchData []string, matchNameT
 	)
 }
 
-func RegexScanner(in io.Reader, out io.Writer) {
+func RegexScanner(in io.Reader, out io.Writer, rules []rule) {
 	scanner := bufio.NewScanner(in)
 
 	namesToIndex := map[string]int{}
@@ -86,6 +161,8 @@ func RegexScanner(in io.Reader, out io.Writer) {
 	for index, name := range statsitePattern.SubexpNames() {
 		namesToIndex[name] = index
 	}
+
+	matchers := CompileRulesIntoMatchers(rules)
 
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -108,7 +185,7 @@ func RegexScanner(in io.Reader, out io.Writer) {
 		}
 
 		// Only change the format if we could extract something from it
-		if taggedName := extractTagsFromMetricName(metricName); taggedName != nil {
+		if taggedName := matchers.ExtractTagsFromMetric(metricName); taggedName != nil {
 			output = formatter(encodeTags(*taggedName), metric, namesToIndex)
 		}
 

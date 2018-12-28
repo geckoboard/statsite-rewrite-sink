@@ -42,7 +42,7 @@ func TestExamples(t *testing.T) {
 		}
 		outputWriter := strings.Builder{}
 
-		RegexScanner(inputReader, &outputWriter)
+		RegexScanner(inputReader, &outputWriter, rules)
 
 		output := outputWriter.String()
 

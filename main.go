@@ -15,5 +15,5 @@ func loadExample(name string) (io.Reader, error) {
 func main() {
 	r, _ := loadExample("consul.in.dump")
 
-	RegexScanner(r, os.Stdout)
+	RegexScanner(r, os.Stdout, rules)
 }
