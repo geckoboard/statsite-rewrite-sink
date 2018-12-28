@@ -1,0 +1,19 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "nHJbl1D+H7h2zyEgXI3qXNATkEU=",
+			"path": "github.com/andreyvit/diff",
+			"revision": "c7f18ee00883bfd3b00e0a2bf7607827e0148ad4",
+			"revisionTime": "2017-04-06T06:49:48Z"
+		},
+		{
+			"checksumSHA1": "QxBGuFiDP7AZx9/QOwJVVDlHjLM=",
+			"path": "github.com/sergi/go-diff/diffmatchpatch",
+			"revision": "da645544ed44df016359bd4c0e3dc60ee3a0da43",
+			"revisionTime": "2018-02-05T16:33:09Z"
+		}
+	],
+	"rootPath": "github.com/geckoboard/statsite-tag-sink"
+}
