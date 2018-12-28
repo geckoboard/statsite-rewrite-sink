@@ -8,6 +8,8 @@ import (
 	"testing"
 
 	"github.com/andreyvit/diff"
+	"github.com/geckoboard/statsite-rewrite-sink/regexengine"
+	"github.com/geckoboard/statsite-rewrite-sink/sinkformatter"
 )
 
 type exampleTestcase struct {
@@ -42,7 +44,7 @@ func TestExamples(t *testing.T) {
 		}
 		outputWriter := strings.Builder{}
 
-		RegexScanner(inputReader, &outputWriter, rules)
+		regexengine.Stream(inputReader, &outputWriter, rules, sinkformatter.Librato)
 
 		output := outputWriter.String()
 

@@ -4,6 +4,9 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+
+	"github.com/geckoboard/statsite-rewrite-sink/regexengine"
+	"github.com/geckoboard/statsite-rewrite-sink/sinkformatter"
 )
 
 func loadExample(name string) (io.Reader, error) {
@@ -15,5 +18,5 @@ func loadExample(name string) (io.Reader, error) {
 func main() {
 	r, _ := loadExample("consul.in.dump")
 
-	RegexScanner(r, os.Stdout, rules)
+	regexengine.Stream(r, os.Stdout, rules, sinkformatter.Librato)
 }

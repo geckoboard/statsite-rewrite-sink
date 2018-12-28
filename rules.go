@@ -1,14 +1,12 @@
 package main
 
-import "regexp"
+import (
+	"regexp"
 
-type rule struct {
-	MatchMetric    string
-	ReplaceWith    string
-	CustomPatterns map[string]*regexp.Regexp
-}
+	"github.com/geckoboard/statsite-rewrite-sink/dsl"
+)
 
-var rules = []rule{
+var rules = []dsl.Rule{
 	{
 		MatchMetric: "consul.http.{method}.{path}",
 		ReplaceWith: "consul.http",
