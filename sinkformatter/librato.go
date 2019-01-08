@@ -13,19 +13,15 @@ func Librato(namePrefix, name, nameSuffix string, tags map[string]string, measur
 }
 
 func libratoTags(tags map[string]string) string {
-	keys := make([]string, 0, len(tags))
 	pairs := make([]string, 0, len(tags))
 
-	// go doesn't iterate over maps in a consistent, ordered way
-	// We need to sort the keys to ensure stability of our tests
-	for k, _ := range tags {
-		keys = append(keys, k)
+	for k, v := range tags {
+		pairs = append(pairs, fmt.Sprintf("%s=%s", k, v))
 	}
-	sort.Strings(keys)
 
-	for _, k := range keys {
-		pairs = append(pairs, fmt.Sprintf("%s=%s", k, tags[k]))
-	}
+	// go doesn't iterate over maps in a consistent, ordered way
+	// We need to sort the tags to ensure stability of our tests
+	sort.Strings(pairs)
 
 	return strings.Join(pairs, ",")
 }
