@@ -23,7 +23,7 @@ func TestRuleCompilation(t *testing.T) {
 				},
 			},
 			expectedMatcher: matcher{
-				Pattern:     regexp.MustCompile(`^consul\.+http\.+(?P<method>[^\.]+)\.+(?P<path>.+)$`),
+				Pattern:     regexp.MustCompile(`^consul\.http\.(?P<method>[^\.]+)\.(?P<path>.+)$`),
 				ReplaceWith: "consul.http",
 			},
 		},
@@ -35,7 +35,7 @@ func TestRuleCompilation(t *testing.T) {
 				ReplaceWith:    "cluster",
 			},
 			expectedMatcher: matcher{
-				Pattern:        regexp.MustCompile(`cluster\.+(?P<cluster>[^\.]+)`),
+				Pattern:        regexp.MustCompile(`cluster\.(?P<cluster>[^\.]+)`),
 				ReplaceWith:    "cluster",
 				RequiredPrefix: "envoy.",
 			},
