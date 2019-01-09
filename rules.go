@@ -16,20 +16,36 @@ var rules = []dsl.Rule{
 	},
 	{
 		RequiredPrefix: "envoy.",
-		PartialMatch:   "cluster.{cluster}",
+		PartialMatch:   "cluster.{envoy_cluster}",
 		ReplaceWith:    "cluster",
 	},
 	{
 		RequiredPrefix: "envoy.",
-		PartialMatch:   "vhost.{vhost}",
+		PartialMatch:   "vhost.{envoy_vhost}",
 		ReplaceWith:    "vhost",
 	},
 	{
 		RequiredPrefix: "envoy.",
-		PartialMatch:   "listener.{listener}.http.",
+		PartialMatch:   "listener.{envoy_listener}.http.",
 		ReplaceWith:    "listener.http.",
 		CustomPatterns: map[string]*regexp.Regexp{
-			"listener": regexp.MustCompile(`.+`),
+			"envoy_listener": regexp.MustCompile(`.+`),
+		},
+	},
+	{
+		RequiredPrefix: "envoy.",
+		PartialMatch:   "_rq_{envoy_http_status_code}",
+		ReplaceWith:    "_rq_status_code",
+		CustomPatterns: map[string]*regexp.Regexp{
+			"envoy_http_status_code": regexp.MustCompile(`\d{3}`),
+		},
+	},
+	{
+		RequiredPrefix: "envoy.",
+		PartialMatch:   "_rq_{envoy_http_status_class}",
+		ReplaceWith:    "_rq_status_class",
+		CustomPatterns: map[string]*regexp.Regexp{
+			"envoy_http_status_class": regexp.MustCompile(`(?i)\dxx`),
 		},
 	},
 }

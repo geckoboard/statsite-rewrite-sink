@@ -40,6 +40,33 @@ func TestRuleCompilation(t *testing.T) {
 				RequiredPrefix: "envoy.",
 			},
 		},
+		{
+
+			rule: dsl.Rule{
+				RequiredPrefix: "envoy.",
+				PartialMatch:   "_rq_{envoy_response_code}",
+				ReplaceWith:    "_rq_status_code",
+				CustomPatterns: map[string]*regexp.Regexp{
+					"envoy_response_code": regexp.MustCompile(`\d{3}`),
+				},
+			},
+			expectedMatcher: matcher{
+				Pattern:        regexp.MustCompile(`_rq_(?P<envoy_response_code>\d{3})`),
+				ReplaceWith:    "_rq_status_code",
+				RequiredPrefix: "envoy.",
+			},
+		},
+		{
+
+			rule: dsl.Rule{
+				PartialMatch: "a_prefix_{a_tag_placeholder}_a_suffix",
+				ReplaceWith:  "a_thing",
+			},
+			expectedMatcher: matcher{
+				Pattern:     regexp.MustCompile(`a_prefix_(?P<a_tag_placeholder>[^\.]+)_a_suffix`),
+				ReplaceWith: "a_thing",
+			},
+		},
 	}
 
 	for _, ex := range examples {
