@@ -1,0 +1,3 @@
+counts.envoy.cluster.tuner-grpc.external.upstream_rq_completed|182.000000|1546955259
+counts.envoy.cluster.tuner-grpc.external.upstream_rq_200|182.000000|1546955259
+counts.envoy.listener.127.0.0.1_8888.http.ingress_http.downstream_rq_2xx|182.000000|1546955259

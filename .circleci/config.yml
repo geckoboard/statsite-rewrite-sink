@@ -1,0 +1,27 @@
+version: 2
+jobs:
+  test:
+    working_directory: /go/src/github.com/geckoboard/statsite-rewrite-sink
+    docker:
+      - image: circleci/golang:1.10
+    steps:
+      - checkout
+      - run: go test -v ./...
+
+  build:
+    working_directory: /go/src/github.com/geckoboard/statsite-rewrite-sink
+    docker:
+      - image: circleci/golang:1.10
+    steps:
+      - checkout
+      - run: mkdir -p bin && go build -o bin/statsite-rewrite-sink
+      - persist_to_workspace:
+          root: .
+          paths: bin/*
+
+workflows:
+  version: 2
+  on-push:
+    jobs:
+      - build
+      - test

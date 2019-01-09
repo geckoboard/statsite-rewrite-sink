@@ -22,15 +22,22 @@ func NewParser(in io.Reader) *parser {
 		namesToIndex[name] = index
 	}
 
+	timerTypeIndex, ok := namesToIndex["timertype"]
+	if !ok {
+		panic("could not find timer type index")
+	}
+
 	return &parser{
-		scanner:      bufio.NewScanner(in),
-		namesToIndex: namesToIndex,
+		scanner:        bufio.NewScanner(in),
+		namesToIndex:   namesToIndex,
+		timerTypeIndex: timerTypeIndex,
 	}
 }
 
 type parser struct {
-	scanner      *bufio.Scanner
-	namesToIndex map[string]int
+	scanner        *bufio.Scanner
+	namesToIndex   map[string]int
+	timerTypeIndex int
 }
 
 func (p *parser) Measurement() Measurement {
@@ -40,7 +47,7 @@ func (p *parser) Measurement() Measurement {
 
 	m := measurement{metric, p}
 
-	if metric[p.namesToIndex["typertype"]] != "" {
+	if metric[p.timerTypeIndex] != "" {
 		return timerMeasurement{m}
 	}
 
