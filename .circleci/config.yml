@@ -39,7 +39,7 @@ jobs:
       - run: |
           mkdir -p pkg tmp/bin
           cp bin/* tmp/bin
-          cd pkg && fpm -C ../tmp -t deb -s dir --name statsite-rewrite-sink --version 1.0.0+build~${CIRCLE_BUILD_NUM}+git~${CIRCLE_SHA1} --prefix /usr/local/ --provides statsite-rewrite-sink --force .
+          cd pkg && fpm -C ../tmp -t deb -s dir --name statsite-rewrite-sink --version 1:1.0.0+build~${CIRCLE_BUILD_NUM}+git~${CIRCLE_SHA1} --prefix /usr/local/ --provides statsite-rewrite-sink --force .
       - persist_to_workspace:
           root: .
           paths: pkg/*
