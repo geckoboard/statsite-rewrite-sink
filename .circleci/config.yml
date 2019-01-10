@@ -24,6 +24,10 @@ jobs:
       - persist_to_workspace:
           root: .
           paths: bin/*
+      # quickly verify the binary works as we expect!
+      # If the output from the bin does not match the expected output it'll
+      # fail the build
+      - run: bin/statsite-rewrite-sink rewrite examples/envoy.in.dump | diff - examples/envoy.out.dump
   package:
     docker:
       - image: circleci/ruby:2.4.2

@@ -9,11 +9,29 @@
 			"revisionTime": "2017-04-06T06:49:48Z"
 		},
 		{
+			"checksumSHA1": "40vJyUB4ezQSn/NSadsKEOrudMc=",
+			"path": "github.com/inconshreveable/mousetrap",
+			"revision": "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75",
+			"revisionTime": "2014-10-17T20:07:13Z"
+		},
+		{
 			"checksumSHA1": "QxBGuFiDP7AZx9/QOwJVVDlHjLM=",
 			"path": "github.com/sergi/go-diff/diffmatchpatch",
 			"revision": "da645544ed44df016359bd4c0e3dc60ee3a0da43",
 			"revisionTime": "2018-02-05T16:33:09Z"
+		},
+		{
+			"checksumSHA1": "WYd7aI5YkeiRSv5pqr12emezBIg=",
+			"path": "github.com/spf13/cobra",
+			"revision": "7547e83b2d85fd1893c7d76916f67689d761fecb",
+			"revisionTime": "2019-01-09T00:34:09Z"
+		},
+		{
+			"checksumSHA1": "VK+UsykzUMkaKl2ankiyutolraE=",
+			"path": "github.com/spf13/pflag",
+			"revision": "24fa6976df40757dce6aea913e7b81ade90530e1",
+			"revisionTime": "2018-12-23T18:29:23Z"
 		}
 	],
-	"rootPath": "github.com/geckoboard/statsite-tag-sink"
+	"rootPath": "github.com/geckoboard/statsite-rewrite-sink"
 }
