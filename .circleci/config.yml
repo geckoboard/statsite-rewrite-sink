@@ -1,4 +1,8 @@
-version: 2
+version: 2.1
+
+orbs:
+  packagecloud: packagecloud/packagecloud@0.1.0
+
 jobs:
   test:
     working_directory: /go/src/github.com/geckoboard/statsite-rewrite-sink
@@ -20,23 +24,23 @@ jobs:
       - persist_to_workspace:
           root: .
           paths: bin/*
-  release:
+  package:
     docker:
       - image: circleci/ruby:2.4.2
     steps:
       - checkout
-      - run: |
-          gem install fpm --no-ri --no-rdoc --version 1.3.3
-          gem install package_cloud --no-ri --no-rdoc
+      - run: gem install fpm --no-ri --no-rdoc --version 1.3.3
       - attach_workspace:
           at: .
       - run: |
           mkdir -p pkg tmp/bin
           cp bin/* tmp/bin
-          cd pkg && fpm -C ../tmp -t deb -s dir --name statsite-rewrite-sink --version 1.0.0+git~${CIRCLE_SHA1} --prefix /usr/local/ --provides statsite-rewrite-sink --force .
+          cd pkg && fpm -C ../tmp -t deb -s dir --name statsite-rewrite-sink --version 1.0.0+build~${CIRCLE_BUILD_NUM}+git~${CIRCLE_SHA1} --prefix /usr/local/ --provides statsite-rewrite-sink --force .
+      - persist_to_workspace:
+          root: .
+          paths: pkg/*
       - store_artifacts:
           path: pkg
-      - run: package_cloud push --skip-errors geckoboard/public-geckoboard-tooling/ubuntu/xenial pkg/*.deb
 
 workflows:
   version: 2
@@ -44,6 +48,17 @@ workflows:
     jobs:
       - build
       - test
-      - release:
+      - package:
           requires:
             - build
+      - packagecloud/push:
+          package-path: pkg/*.deb
+          repo-fqname: geckoboard/public-packages
+          os-version: ubuntu/xenial
+          workspace-path: .
+          filters:
+            branches:
+              # We don't want to allow PRs from forks to publish to our deb repo without approval
+              only: master
+          requires:
+            - package
