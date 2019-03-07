@@ -9,8 +9,8 @@ import (
 
 func TestRuleCompilation(t *testing.T) {
 	type example struct {
-		rule            dsl.Rule
-		expectedMatcher matcher
+		rule              dsl.Rule
+		expectedExtractor extractor
 	}
 
 	examples := []example{
@@ -22,7 +22,7 @@ func TestRuleCompilation(t *testing.T) {
 					"path": regexp.MustCompile(`.+`),
 				},
 			},
-			expectedMatcher: matcher{
+			expectedExtractor: extractor{
 				Pattern:     regexp.MustCompile(`^consul\.http\.(?P<method>[^\.]+)\.(?P<path>.+)$`),
 				ReplaceWith: "consul.http",
 			},
@@ -34,7 +34,7 @@ func TestRuleCompilation(t *testing.T) {
 				PartialMatch:   "cluster.{cluster}",
 				ReplaceWith:    "cluster",
 			},
-			expectedMatcher: matcher{
+			expectedExtractor: extractor{
 				Pattern:        regexp.MustCompile(`cluster\.(?P<cluster>[^\.]+)`),
 				ReplaceWith:    "cluster",
 				RequiredPrefix: "envoy.",
@@ -50,7 +50,7 @@ func TestRuleCompilation(t *testing.T) {
 					"envoy_response_code": regexp.MustCompile(`\d{3}`),
 				},
 			},
-			expectedMatcher: matcher{
+			expectedExtractor: extractor{
 				Pattern:        regexp.MustCompile(`_rq_(?P<envoy_response_code>\d{3})`),
 				ReplaceWith:    "_rq_status_code",
 				RequiredPrefix: "envoy.",
@@ -62,7 +62,7 @@ func TestRuleCompilation(t *testing.T) {
 				PartialMatch: "a_prefix_{a_tag_placeholder}_a_suffix",
 				ReplaceWith:  "a_thing",
 			},
-			expectedMatcher: matcher{
+			expectedExtractor: extractor{
 				Pattern:     regexp.MustCompile(`a_prefix_(?P<a_tag_placeholder>[^\.]+)_a_suffix`),
 				ReplaceWith: "a_thing",
 			},
@@ -71,8 +71,8 @@ func TestRuleCompilation(t *testing.T) {
 
 	for _, ex := range examples {
 		matchers := CompileRulesIntoMatchers([]dsl.Rule{ex.rule})
-		actual := matchers[0]
-		expected := ex.expectedMatcher
+		actual := matchers.extractors[0]
+		expected := ex.expectedExtractor
 
 		if actual.Pattern.String() != expected.Pattern.String() {
 			t.Errorf("got %q, expected %q", actual.Pattern.String(), expected.Pattern.String())
