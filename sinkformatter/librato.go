@@ -9,6 +9,10 @@ import (
 type Formatter func(namePrefix, name, nameSuffix string, tags map[string]string, measurement string) string
 
 func Librato(namePrefix, name, nameSuffix string, tags map[string]string, measurement string) string {
+	if len(tags) == 0 {
+		return fmt.Sprintf("%s%s%s%s", namePrefix, name, nameSuffix, measurement)
+	}
+
 	return fmt.Sprintf("%s%s#%s%s%s", namePrefix, name, libratoTags(tags), nameSuffix, measurement)
 }
 
