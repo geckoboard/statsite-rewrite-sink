@@ -7,6 +7,7 @@ type match struct {
 
 type matchers struct {
 	extractors []extractor
+	droppers   []dropper
 }
 
 func (m matchers) ExtractTagsFromMetric(metric Measurement) *match {
@@ -32,4 +33,14 @@ func (m matchers) ExtractTagsFromMetric(metric Measurement) *match {
 	}
 
 	return result
+}
+
+func (m matchers) ShouldDropMetric(metric Measurement) bool {
+	for _, d := range m.droppers {
+		if d.ShouldDrop(metric) {
+			return true
+		}
+	}
+
+	return false
 }

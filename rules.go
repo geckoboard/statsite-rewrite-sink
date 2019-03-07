@@ -57,4 +57,8 @@ var rules = []dsl.Rule{
 		PartialMatch:   "ssl.ciphers.{envoy_ssl_cipher}",
 		ReplaceWith:    "ssl.ciphers",
 	},
+	{
+		RequiredPrefix:         "envoy.",
+		DropMeasurementsOfZero: true,
+	},
 }

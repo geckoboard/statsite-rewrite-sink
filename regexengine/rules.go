@@ -18,9 +18,19 @@ var (
 func CompileRulesIntoMatchers(rules []dsl.Rule) matchers {
 	compiledMatchers := matchers{
 		extractors: []extractor{},
+		droppers:   []dropper{},
 	}
 
 	for _, r := range rules {
+		if r.DropMeasurementsOfZero {
+			d := dropper{
+				r.RequiredPrefix,
+			}
+
+			compiledMatchers.droppers = append(compiledMatchers.droppers, d)
+			continue
+		}
+
 		var patternPrefix, patternSuffix string
 
 		matcher := extractor{RequiredPrefix: r.RequiredPrefix, ReplaceWith: r.ReplaceWith}
