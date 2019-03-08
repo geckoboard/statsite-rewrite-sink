@@ -16,12 +16,24 @@ var (
 // extracting tags from metric names and compiles them into regex patterns that
 // can be applied to metric names.
 func CompileRulesIntoMatchers(rules []dsl.Rule) matchers {
-	matches := make(matchers, 0, len(rules))
+	compiledMatchers := matchers{
+		extractors: []extractor{},
+		droppers:   []dropper{},
+	}
 
 	for _, r := range rules {
+		if r.DropMeasurementsOfZero {
+			d := dropper{
+				r.RequiredPrefix,
+			}
+
+			compiledMatchers.droppers = append(compiledMatchers.droppers, d)
+			continue
+		}
+
 		var patternPrefix, patternSuffix string
 
-		matcher := matcher{RequiredPrefix: r.RequiredPrefix, ReplaceWith: r.ReplaceWith}
+		matcher := extractor{RequiredPrefix: r.RequiredPrefix, ReplaceWith: r.ReplaceWith}
 
 		rule := r.PartialMatch
 		if r.CompleteMatch != "" {
@@ -36,10 +48,10 @@ func CompileRulesIntoMatchers(rules []dsl.Rule) matchers {
 			fmt.Sprintf("%s%s%s", patternPrefix, pattern, patternSuffix),
 		)
 
-		matches = append(matches, matcher)
+		compiledMatchers.extractors = append(compiledMatchers.extractors, matcher)
 	}
 
-	return matches
+	return compiledMatchers
 }
 
 func compileRuleIntoPattern(rule string, customPatterns map[string]*regexp.Regexp) string {

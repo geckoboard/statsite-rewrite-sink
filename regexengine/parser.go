@@ -11,7 +11,7 @@ import (
 // for each timer. Aggregates have a special suffix
 var matchTimerMetric = `(?:(?P<timertype>timers\.)(?P<timermetric>[^|]+)(?P<timerattr>.(?:sum|sum_sq|mean|lower|upper|count|stdev|p\d\d?))`
 var matchGenericMetric = `(?P<wildtype>[^\.]+\.)(?P<wildmetric>[^|]+))`
-var matchMeasurement = `(?P<measurements>\|.+)`
+var matchMeasurement = `\|(?P<value>[^|]+)\|(?P<timestamp>.+)`
 
 var statsitePattern = regexp.MustCompile(fmt.Sprintf(`(?:%s|%s)%s`, matchTimerMetric, matchGenericMetric, matchMeasurement))
 

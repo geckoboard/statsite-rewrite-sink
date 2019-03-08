@@ -5,45 +5,13 @@ import (
 	"strings"
 )
 
-type match struct {
-	name string
-	tags map[string]string
-}
-
-type matchers []matcher
-
-func (m matchers) ExtractTagsFromMetric(metric Measurement) *match {
-	result := &match{
-		name: metric.Name(),
-		tags: map[string]string{},
-	}
-	matched := false
-
-	for _, matcher := range m {
-		// Merge all results. Some rules will only modify part of a metric name
-		if r := matcher.ApplyTo(result.name); r != nil {
-			matched = true
-			result.name = r.name
-			for k, v := range r.tags {
-				result.tags[k] = v
-			}
-		}
-	}
-
-	if !matched {
-		return nil
-	}
-
-	return result
-}
-
-type matcher struct {
+type extractor struct {
 	Pattern        *regexp.Regexp
 	ReplaceWith    string
 	RequiredPrefix string
 }
 
-func (m matcher) ApplyTo(metricName string) *match {
+func (m extractor) ApplyTo(metricName string) *match {
 	// If this matcher is configured to only match part of the metric name,
 	// we may need to perform some safety checks to verify we only target metrics
 	// we're expecting to

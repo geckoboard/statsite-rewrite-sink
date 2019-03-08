@@ -1,11 +1,17 @@
 package regexengine
 
+import (
+	"fmt"
+	"strconv"
+)
+
 type Measurement interface {
 	Name() string
 	NameSuffix() string
 	NamePrefix() string
 	WholeLine() string
 	MetaSuffix() string
+	Value() (float64, error)
 }
 
 type measurement struct {
@@ -28,7 +34,15 @@ func (m measurement) NamePrefix() string {
 func (m measurement) NameSuffix() string { return "" }
 
 func (m measurement) MetaSuffix() string {
-	return m.match[m.p.namesToIndex["measurements"]]
+	return fmt.Sprintf(
+		"|%s|%s",
+		m.match[m.p.namesToIndex["value"]],
+		m.match[m.p.namesToIndex["timestamp"]],
+	)
+}
+
+func (m measurement) Value() (float64, error) {
+	return strconv.ParseFloat(m.match[m.p.namesToIndex["value"]], 64)
 }
 
 type timerMeasurement struct {

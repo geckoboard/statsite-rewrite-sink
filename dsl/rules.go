@@ -26,4 +26,14 @@ type Rule struct {
 	// values. The key should match the name of the placeholder (e.g.
 	// `tag_name` in `{tag_name}`). The default value is `[^\.]+`
 	CustomPatterns map[string]*regexp.Regexp
+
+	// DropMeasurementsOfZero is useful for systems like envoy that have a
+	// high cardinality of metrics, where many of them are only reporting
+	// '0'.
+	//
+	// If your monitoring provider can handle an absence of data in a
+	// useful way then storing zeros is not overly helpful. Also, storing a
+	// large number of measurements can be expensive if your provider
+	// charges per measurement
+	DropMeasurementsOfZero bool
 }

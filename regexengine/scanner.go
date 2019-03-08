@@ -15,6 +15,10 @@ func Stream(in io.Reader, out io.Writer, rules []dsl.Rule, formatter sinkformatt
 	for parser.Parse() {
 		measurement := parser.Measurement()
 
+		if matchers.ShouldDropMetric(measurement) {
+			continue
+		}
+
 		output := measurement.WholeLine()
 
 		// Only change the format if we could extract something from it
